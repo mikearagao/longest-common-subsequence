@@ -28,12 +28,16 @@ short cost(int x) {
 void lcs( char *X, char *Y, int m, int n ) {
   int** L;
   int i, j;
+  double start; // time before lcs algorithm
+  double end; // time after lcs algorithm
+  double time; // total execution time
 
   L = (int**) malloc(sizeof(int*) * (m + 1));
   for(i = 0; i <= m; i++) {
     L[i] = (int*) malloc(sizeof(int) * (n + 1));
   }
 
+  start = omp_get_wtime();
   /* Following steps build L[m+1][n+1] in bottom up fashion. Note
   that L[i][j] contains length of LCS of X[0..i-1] and Y[0..j-1] */
   for(i=0; i<=m; i++) {
@@ -51,6 +55,9 @@ void lcs( char *X, char *Y, int m, int n ) {
       }
     }
   }
+  end = omp_get_wtime();
+  time = end - start;
+  printf("For Time: %f\n", time);
 
   // Following code is used to print LCS
   int index = L[m][n];
@@ -63,6 +70,7 @@ void lcs( char *X, char *Y, int m, int n ) {
   // one by one store characters in lcs[]
   i = m;
   j = n;
+  start = omp_get_wtime();
   while (i > 0 && j > 0) {
     // If current character in X[] and Y are same, then
     // current character is part of LCS
@@ -81,6 +89,9 @@ void lcs( char *X, char *Y, int m, int n ) {
     else
       j--;
   }
+  end = omp_get_wtime();
+  time = end - start;
+  printf("While Time: %f\n", time);
 
   /* Print the lcs */
   printf("%d\n%s\n", L[m][n], lcs);
@@ -136,7 +147,7 @@ int main(int argc, char *argv[]) {
   end = omp_get_wtime();
 
   time = end - start;
-  printf("Time: %f\n", time);
+  printf("Total Time: %f\n", time);
 
   free(secondString);
   free(firstString);
