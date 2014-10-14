@@ -26,7 +26,7 @@ Open a terminal:
 
 ## Contributions
 
-Please follow the right flow for secure commits.
+Please follow the following instructions for secure commit flows.
 
 Open a terminal:
 
