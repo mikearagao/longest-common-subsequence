@@ -1,1 +1,1 @@
-gcc ../serial/lcs_serial.c -o ../serial/serial -lm -g
+gcc ../serial/lcs_serial.c -o ../serial/serial -lm -g -fopenmp

@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
+#include <omp.h>
 
 int max(int a, int b) {
   return (a > b) ? a : b;
@@ -96,7 +97,9 @@ int main(int argc, char *argv[]) {
 	char *firstString, *secondString;
 	int firstStringSize = 0;
 	int secondStringSize = 0;
-
+  double start; // time before lcs algorithm
+  double end; // time after lcs algorithm
+  double time; // total execution time
 
 	/* Checks if there is only one argument when calling the executable */
   if(argc != 2) {
@@ -129,7 +132,12 @@ int main(int argc, char *argv[]) {
 	 * solution be unique you should follow these rules: associate the first string with the
 	 * rows (and the second with the columns); when moving backwards in the matrix to determine
 	 * the subsequence, in case up and left have the same vaue always move left." */
+  start = omp_get_wtime();
 	lcs(secondString, firstString, secondStringSize, firstStringSize);
+  end = omp_get_wtime();
+
+  time = end - start;
+  printf("Time: %f\n", time);
 
   free(secondString);
   free(firstString);
