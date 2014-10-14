@@ -4,9 +4,7 @@ Main project for the Parallel and Distributed Computing course
 
 ## Downloading
 
-Open a terminal and navigate to the folder where you want to download the package.
-
-Now, run:
+Open a terminal:
 
     git clone https://github.com/mikearagao/longest-common-subsequence
     
