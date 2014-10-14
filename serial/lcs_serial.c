@@ -26,7 +26,6 @@ short cost(int x) {
 
 /* Returns length of LCS for X[0..m-1], Y[0..n-1] */
 void lcs( char *X, char *Y, int m, int n ) {
-  // miguel int L[m+1][n+1];
   int** L;
   int i, j;
 
