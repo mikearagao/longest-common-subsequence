@@ -1,1 +1,0 @@
-gcc serial/lcs_serial.c -o serial/serial -lm -g
