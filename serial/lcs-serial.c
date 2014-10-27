@@ -35,6 +35,7 @@ void lcs( char *X, char *Y, int m, int n ) {
   int size = 1;
   int inc = 1;
   int x, y;
+  int init_x, init_y;
 
   L = (int**) malloc(sizeof(int*) * (m + 1));
   for(i = 0; i <= m; i++) {
@@ -65,6 +66,8 @@ void lcs( char *X, char *Y, int m, int n ) {
       inc--;
     }
 
+    init_x = x;
+    init_y = y;
     for (j = 0; j < size; j++) {
       if (X[x-1] == Y[y-1]) {
        L[x][y] = L[x-1][y-1] + cost(i);
@@ -72,8 +75,8 @@ void lcs( char *X, char *Y, int m, int n ) {
         L[x][y] = max(L[x-1][y], L[x][y-1]);
       }
 
-      x--;
-      y++;
+      x = init_x - j - 1;
+      y = init_y + j + 1;
     }
 
     size += inc;
