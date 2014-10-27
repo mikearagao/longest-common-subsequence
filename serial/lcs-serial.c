@@ -32,6 +32,10 @@ void lcs( char *X, char *Y, int m, int n ) {
   double end; // time after lcs algorithm
   double time; // total execution time
 
+  int size = 1;
+  int inc = 1;
+  int x, y;
+
   L = (int**) malloc(sizeof(int*) * (m + 1));
   for(i = 0; i <= m; i++) {
     L[i] = (int*) malloc(sizeof(int) * (n + 1));
@@ -48,7 +52,34 @@ void lcs( char *X, char *Y, int m, int n ) {
     L[0][i] = 0;
   }
 
-  for(i=1; i<=m; i++) {
+  for (i = 1; i <= m + n - 1; i++) {
+    if (i >= m) {
+      x = m;
+      y = 1 + i - m;
+    } else {
+      x = i;
+      y = 1;
+    }
+
+    if (i == m || i == n) {
+      inc--;
+    }
+
+    for (j = 0; j < size; j++) {
+      if (X[x-1] == Y[y-1]) {
+       L[x][y] = L[x-1][y-1] + cost(i);
+      } else {
+        L[x][y] = max(L[x-1][y], L[x][y-1]);
+      }
+
+      x--;
+      y++;
+    }
+
+    size += inc;
+  }
+
+  /*for(i=1; i<=m; i++) {
     for(j=1; j<=n; j++) {
     	if (X[i-1] == Y[j-1]) {
     	 L[i][j] = L[i-1][j-1] + cost(i);
@@ -56,7 +87,7 @@ void lcs( char *X, char *Y, int m, int n ) {
     		L[i][j] = max(L[i-1][j], L[i][j-1]);
       }
     }
-  }
+  }*/
   end = omp_get_wtime();
   time = end - start;
   printf("For Time: %f\n", time);
