@@ -26,7 +26,7 @@ short cost(int x) {
 
 /* Returns length of LCS for X[0..m-1], Y[0..n-1] */
 void lcs( char *X, char *Y, int m, int n ) {
-  int** L;
+  unsigned short int** L;
   int i, j;
   double start; // time before lcs algorithm
   double end; // time after lcs algorithm
@@ -38,9 +38,9 @@ void lcs( char *X, char *Y, int m, int n ) {
   int init_x, init_y;
   int nthreads; 
 
-  L = (int**) malloc(sizeof(int*) * (m + 1));
+  L = (unsigned short int**) malloc(sizeof(unsigned short int*) * (m + 1));
   for(i = 0; i <= m; i++) {
-    L[i] = (int*) malloc(sizeof(int) * (n + 1));
+    L[i] = (unsigned short int*) malloc(sizeof(unsigned short int) * (n + 1));
   }
 
   start = omp_get_wtime();
@@ -70,7 +70,7 @@ void lcs( char *X, char *Y, int m, int n ) {
     init_x = x;
     init_y = y;
 
-    #pragma omp parallel num_threads(4)
+    #pragma omp parallel num_threads(2)
     nthreads = omp_get_num_threads();
 
     //printf("Num threads: %d\nThread id: %d\n", nthreads, tid);
