@@ -1,5 +1,5 @@
 echo "----------------------------------"
-echo "Running CPD Project Serial Version"
+echo "Running CPD Project Omp Version"
 echo "----------------------------------\n\n"
 echo "-------- Start ex10.15 ---------"
 ../omp/omp ../instances/ex10.15.in > ../results/out.ex10.15.out

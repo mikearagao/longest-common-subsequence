@@ -36,7 +36,7 @@ void lcs( char *X, char *Y, int m, int n ) {
   int inc = 1;
   int x, y;
   int init_x, init_y;
-  int nthreads, tid;
+  int nthreads; 
 
   L = (int**) malloc(sizeof(int*) * (m + 1));
   for(i = 0; i <= m; i++) {
@@ -71,8 +71,11 @@ void lcs( char *X, char *Y, int m, int n ) {
     init_y = y;
 
     #pragma omp parallel num_threads(4)
-    #pragma omp parallel for private(x, y, nthreads, tid)
-    for (j = tid; x > 0 && x =< m && y > 0 && y =< n; j += nthreads) {
+    nthreads = omp_get_num_threads();
+
+    //printf("Num threads: %d\nThread id: %d\n", nthreads, tid);
+    #pragma omp parallel for private(x, y)
+    for (j = 0; j < size; j++) {
       x = init_x - j;
       y = init_y + j;
 
