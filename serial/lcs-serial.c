@@ -32,15 +32,9 @@ void lcs( char *X, char *Y, int m, int n ) {
   double end; // time after lcs algorithm
   double time; // total execution time
 
-  int size = 1;
-  int inc = 1;
-  int x, y;
-  int init_x, init_y;
-  int nthreads, tid;
-
-  L = (unsigned short int**) malloc(sizeof(int*) * (m + 1));
+  L = (unsigned short int**) malloc(sizeof(unsigned short int*) * (m + 1));
   for(i = 0; i <= m; i++) {
-    L[i] = (unsigned short int*) malloc(sizeof(int) * (n + 1));
+    L[i] = (unsigned short int*) malloc(sizeof(unsigned short int) * (n + 1));
   }
 
   start = omp_get_wtime();
@@ -54,48 +48,24 @@ void lcs( char *X, char *Y, int m, int n ) {
     L[0][i] = 0;
   }
 
-  for (i = 1; i <= m + n - 1; i++) {
-    if (i >= m) {
-      x = m;
-      y = 1 + i - m;
-    } else {
-      x = i;
-      y = 1;
-    }
-
-    if (i == m || i == n) {
-      inc--;
-    }
-
-    init_x = x;
-    init_y = y;
-
-    for (j = 0; j < size; j++) {
-      x = init_x - j;
-      y = init_y + j;
-
-      if (X[x-1] == Y[y-1]) {
-       L[x][y] = L[x-1][y-1] + cost(i);
-      } else {
-        L[x][y] = max(L[x-1][y], L[x][y-1]);
-      }
-    }
-
-    size += inc;
-  }
-
-  /*for(i=1; i<=m; i++) {
+  for(i=1; i<=m; i++) {
     for(j=1; j<=n; j++) {
-    	if (X[i-1] == Y[j-1]) {
-    	 L[i][j] = L[i-1][j-1] + cost(i);
-     	} else {
-    		L[i][j] = max(L[i-1][j], L[i][j-1]);
+      if (i == 0 || j == 0) {
+    	 L[i][j] = 0;
+      }
+      else {
+    	 if (X[i-1] == Y[j-1]) {
+    	   L[i][j] = L[i-1][j-1] + cost(i);
+     	 }
+    	 else {
+    		 L[i][j] = max(L[i-1][j], L[i][j-1]);
+    	 }
       }
     }
-  }*/
+  }
   end = omp_get_wtime();
   time = end - start;
-  printf("For Time: %f\n", time);
+  //printf("For Time: %f\n", time);
 
   // Following code is used to print LCS
   int index = L[m][n];
@@ -129,7 +99,7 @@ void lcs( char *X, char *Y, int m, int n ) {
   }
   end = omp_get_wtime();
   time = end - start;
-  printf("While Time: %f\n", time);
+  //printf("While Time: %f\n", time);
 
   /* Print the lcs */
   printf("%d\n%s\n", L[m][n], lcs);
@@ -185,7 +155,7 @@ int main(int argc, char *argv[]) {
   end = omp_get_wtime();
 
   time = end - start;
-  printf("Total Time: %f\n", time);
+  //printf("Total Time: %f\n", time);
 
   free(secondString);
   free(firstString);

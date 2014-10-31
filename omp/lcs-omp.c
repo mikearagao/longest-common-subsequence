@@ -97,7 +97,7 @@ void lcs( char *X, char *Y, int m, int n ) {
   }*/
   end = omp_get_wtime();
   time = end - start;
-  printf("For Time: %f\n", time);
+  //printf("For Time: %f\n", time);
 
   // Following code is used to print LCS
   int index = L[m][n];
@@ -131,7 +131,7 @@ void lcs( char *X, char *Y, int m, int n ) {
   }
   end = omp_get_wtime();
   time = end - start;
-  printf("While Time: %f\n", time);
+  //printf("While Time: %f\n", time);
 
   /* Print the lcs */
   printf("%d\n%s\n", L[m][n], lcs);
@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
   end = omp_get_wtime();
 
   time = end - start;
-  printf("Total Time: %f\n", time);
+  //printf("Total Time: %f\n", time);
 
   free(secondString);
   free(firstString);
