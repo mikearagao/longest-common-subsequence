@@ -1,4 +1,5 @@
 serial/serial
-openmp/openmp
+serial/old
+omp/omp
 mpi/mpi
-results/out.*
+results/out*

@@ -26,22 +26,30 @@ short cost(int x) {
 
 /* Returns length of LCS for X[0..m-1], Y[0..n-1] */
 void lcs( char *X, char *Y, int m, int n ) {
-  int** L;
+  unsigned short int** L;
   int i, j;
   double start; // time before lcs algorithm
   double end; // time after lcs algorithm
   double time; // total execution time
 
-  L = (int**) malloc(sizeof(int*) * (m + 1));
+  L = (unsigned short int**) malloc(sizeof(unsigned short int*) * (m + 1));
   for(i = 0; i <= m; i++) {
-    L[i] = (int*) malloc(sizeof(int) * (n + 1));
+    L[i] = (unsigned short int*) malloc(sizeof(unsigned short int) * (n + 1));
   }
 
   start = omp_get_wtime();
   /* Following steps build L[m+1][n+1] in bottom up fashion. Note
   that L[i][j] contains length of LCS of X[0..i-1] and Y[0..j-1] */
-  for(i=0; i<=m; i++) {
-    for(j=0; j<=n; j++) {
+  for(i = 0; i <= m; i++) {
+    L[i][0] = 0;
+  }
+
+  for(i = 0; i <= n; i++) {
+    L[0][i] = 0;
+  }
+
+  for(i=1; i<=m; i++) {
+    for(j=1; j<=n; j++) {
       if (i == 0 || j == 0) {
     	 L[i][j] = 0;
       }

@@ -70,9 +70,6 @@ void lcs( char *X, char *Y, int m, int n ) {
     init_x = x;
     init_y = y;
 
-    #pragma omp parallel num_threads(2)
-    nthreads = omp_get_num_threads();
-
     //printf("Num threads: %d\nThread id: %d\n", nthreads, tid);
     #pragma omp parallel for private(x, y)
     for (j = 0; j < size; j++) {
