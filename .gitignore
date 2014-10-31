@@ -2,4 +2,6 @@ serial/serial
 serial/old
 omp/omp
 mpi/mpi
-results/out*
+results/omp*
+results/serial*
+results/old*
