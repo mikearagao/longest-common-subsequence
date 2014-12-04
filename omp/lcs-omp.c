@@ -67,6 +67,10 @@ void lcs( char *X, char *Y, int m, int n ) {
       inc--;
     }
 
+    if (i == m && i == n) {
+      inc--;
+    }
+
     init_x = x;
     init_y = y;
 
