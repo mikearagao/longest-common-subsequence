@@ -11,6 +11,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <mpi.h>
+#include <string.h>
 
 int max(int a, int b) {
   return (a > b) ? a : b;
@@ -36,6 +37,7 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
   int size = 1;
   int inc = 1;
   int start_id;
+  int max_iter = 0;
   int aux_iter, iter, pos_to_store;
   int x, y;
   int init_x, init_y;
@@ -121,20 +123,21 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
       }
       iter++;
     }
+    if (iter > max_iter) {
+      max_iter = iter;
+    }
 
     MPI_Isend(L, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id + 1) % p), id, MPI_COMM_WORLD, &request);
 
-    /*if (id == 0) {
+    if (id == 0) {
       MPI_Recv(aux_ghost, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id - 1) % p), ((id - 1) % p), MPI_COMM_WORLD, &status);
       for (j = 0; j < (m + 1); j++) {
         ghost[j] = 0;
       }
-      for (j = (m + 1); j < (m + 1) * process_height; j++) {
-        ghost[j] = aux_ghost[j - (m + 1)];
-      }
-    } else {*/
+      memcpy(&ghost[m + 1], &aux_ghost[m + 1], (m + 1) * (process_height - 1) * sizeof(unsigned short int));
+    } else {
       MPI_Recv(ghost, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id - 1) % p), ((id - 1) % p), MPI_COMM_WORLD, &status);
-    // }
+    }
     
     // MPI_Isend(&L, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id + 1) % p), id, MPI_COMM_WORLD);
 
@@ -142,6 +145,11 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
     MPI_Barrier (MPI_COMM_WORLD);
   }
 
+  if (id == 0) {
+
+  } else {
+    MPI_Send(L, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id + 1) % p), id, MPI_COMM_WORLD);
+  }
   // start = omp_get_wtime();
   /* Following steps build L[m+1][n+1] in bottom up fashion. Note
   that L[i][j] contains length of LCS of X[0..i-1] and Y[0..j-1] */
