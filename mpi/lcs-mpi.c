@@ -124,7 +124,7 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
 
     MPI_Isend(L, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id + 1) % p), id, MPI_COMM_WORLD, &request);
 
-    if (id == 0) {
+    /*if (id == 0) {
       MPI_Recv(aux_ghost, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id - 1) % p), ((id - 1) % p), MPI_COMM_WORLD, &status);
       for (j = 0; j < (m + 1); j++) {
         ghost[j] = 0;
@@ -132,9 +132,9 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
       for (j = (m + 1); j < (m + 1) * process_height; j++) {
         ghost[j] = aux_ghost[j - (m + 1)];
       }
-    } else {
+    } else {*/
       MPI_Recv(ghost, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id - 1) % p), ((id - 1) % p), MPI_COMM_WORLD, &status);
-    }
+    // }
     
     // MPI_Isend(&L, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id + 1) % p), id, MPI_COMM_WORLD);
 
