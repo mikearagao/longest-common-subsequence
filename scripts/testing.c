@@ -24,7 +24,7 @@ int main ()
    }
    printf("\n");
 
-   memcpy(&src[25], &dest[0], 25 * sizeof(unsigned short int));
+   memcpy(&src[25], &src[0], 25 * sizeof(unsigned short int));
 
    printf("dest: ");
    for (i = 0; i < 100; i++) {

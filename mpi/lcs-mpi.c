@@ -30,6 +30,7 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
   unsigned short int* L;
   unsigned short int* ghost;
   unsigned short int* aux_ghost;
+  unsigned short int* to_print;
   int i, j, process_height;
   double start; // time before lcs algorithm
   double end; // time after lcs algorithm
@@ -40,9 +41,13 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
   int max_iter = 0;
   int aux_iter, iter, pos_to_store;
   int x, y;
-  int init_x, init_y;
+  int init_x, init_y, procc_to_print;
   MPI_Status status;
   MPI_Request request;
+  int is_first = 1;
+  int max_index;
+  char *lcs;
+  int last_m = m;
 
   process_height = 0;
   // printf("n: %d m %d\n", n, m);
@@ -60,6 +65,7 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
 
   L = (unsigned short int*) malloc(sizeof(unsigned short int) * (m + 1) * process_height );
   ghost = (unsigned short int*) malloc(sizeof(unsigned short int) * (m + 1) * process_height);
+  to_print = (unsigned short int*) malloc(sizeof(unsigned short int) * (m + 1) * 2);
   if (id == 0) {
     aux_ghost = (unsigned short int*) malloc(sizeof(unsigned short int) * (m + 1) * process_height);
   }
@@ -123,18 +129,19 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
       }
       iter++;
     }
-    if (iter > max_iter) {
-      max_iter = iter;
+    if ((iter - 1) >= max_iter) {
+      max_iter = (iter - 1);
     }
 
     MPI_Isend(L, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id + 1) % p), id, MPI_COMM_WORLD, &request);
 
     if (id == 0) {
-      MPI_Recv(aux_ghost, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id - 1) % p), ((id - 1) % p), MPI_COMM_WORLD, &status);
-      for (j = 0; j < (m + 1); j++) {
+       MPI_Recv(aux_ghost, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id - 1) % p), ((id - 1) % p), MPI_COMM_WORLD, &status);
+       for (j = 0; j < (m + 1); j++)
         ghost[j] = 0;
-      }
-      memcpy(&ghost[m + 1], &aux_ghost[m + 1], (m + 1) * (process_height - 1) * sizeof(unsigned short int));
+       //for (j = (m + 1); j < (m + 1) * process_height; j++)
+        //ghost[j] = aux_ghost[j - (m + 1)];
+       memcpy(&ghost[(m + 1)], &aux_ghost[0], (m + 1) * (process_height - 1) * sizeof(unsigned short int));
     } else {
       MPI_Recv(ghost, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id - 1) % p), ((id - 1) % p), MPI_COMM_WORLD, &status);
     }
@@ -144,12 +151,67 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
     size += inc;
     MPI_Barrier (MPI_COMM_WORLD);
   }
+  MPI_Barrier (MPI_COMM_WORLD);
+  //printf("max iter: %d\n", max_iter);
 
   if (id == 0) {
+    procc_to_print = (n - 1) % p;
+    for (i = n - 1; i >= 0; i--) {
+      if (procc_to_print == 0) {
+        memcpy(&to_print[0], &ghost[(m + 1) * max_iter], (m + 1) * sizeof(unsigned short int));
+        memcpy(&to_print[(m + 1)], &L[(m + 1) * max_iter], (m + 1) * sizeof(unsigned short int));
+        max_iter--;
+      } else {
+        MPI_Recv(to_print, (m + 1) * 2, MPI_UNSIGNED_SHORT, procc_to_print, procc_to_print, MPI_COMM_WORLD, &status);
+        // compute lines
+      }
 
+      if (is_first > 0) {
+        max_index = to_print[((m + 1) * 2) - 1];
+        lcs = (char*) malloc(sizeof(char) * (max_index + 1));
+        lcs[max_index] = '\0'; // Set the terminating character
+        printf("%d\n", max_index);
+        max_index--;
+        is_first = -1;
+      }
+      //printf("to_print, from procc: %d\n", id);
+        //for (j = 0; j < ((m+1)*2); j++) {
+          //printf("%d ", to_print[j]);
+        //}
+        //printf("\n");
+      for (j = last_m; j > 0; j--) {
+        last_m--;
+        if (X[j - 1] == Y[i]) {
+          // printf("i: %d || j: %d || max_index: %d || SYMBOL: %c\n", i, j, max_index, X[j]);
+          lcs[max_index] = X[j - 1];
+          max_index--;
+          break;
+        } else if (to_print[j] > to_print[(m + 1) + j - 1]) {
+          last_m++;
+          break;
+        }
+      }
+      procc_to_print = (procc_to_print - 1);
+      if (procc_to_print < 0) {
+        procc_to_print = p - 1;
+      }
+    }
   } else {
-    MPI_Send(L, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id + 1) % p), id, MPI_COMM_WORLD);
+    for (i = max_iter; i >= 0; i--) {
+      //printf("hey im procc: %d\n", id);fflush;
+      memcpy(&to_print[0], &ghost[(m + 1) * i], (m + 1) * sizeof(unsigned short int));
+      memcpy(&to_print[(m + 1)], &L[(m + 1) * i], (m + 1) * sizeof(unsigned short int));
+      //printf("to_print, from procc: %d\n", id);
+      //for (j = 0; j < ((m+1)*2); j++) {
+        //printf("%d ", to_print[j]);
+      //}
+      //printf("\n");
+      MPI_Ssend(to_print, (m + 1) * 2, MPI_UNSIGNED_SHORT, 0, id, MPI_COMM_WORLD);
+    }
   }
+
+  if(id == 0)
+    printf("%s\n", lcs);
   // start = omp_get_wtime();
   /* Following steps build L[m+1][n+1] in bottom up fashion. Note
   that L[i][j] contains length of LCS of X[0..i-1] and Y[0..j-1] */
@@ -217,7 +279,7 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
   /* Print the lcs */
   //printf("%d\n%s\n", L[m][n], lcs);
   for (j = 0; j < (m+1) * process_height; j++) {
-    // printf("id: %d index: %d val: %d\n", id, j, L[j]);fflush;
+    //printf("id: %d index: %d val: %d\n", id, j, L[j]);fflush;
   }
 
   /*for(i = 0; i <= m; i++) {
@@ -282,7 +344,8 @@ int main(int argc, char *argv[]) {
 
   time = end - start;
   MPI_Barrier (MPI_COMM_WORLD);
-  printf("Total Time: %f\n", time);
+  if(id == 0)
+    printf("Total Time: %f\n", time);
 
   free(secondString);
   free(firstString);
