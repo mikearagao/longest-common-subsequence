@@ -27,17 +27,19 @@ short cost(int x) {
 
 /* Returns length of LCS for X[0..m-1], Y[0..n-1] */
 void lcs( char *X, char *Y, int m, int n, int id, int p) {
-  unsigned short int* L;
-  unsigned short int* ghost;
-  unsigned short int* aux_ghost;
-  unsigned short int* to_print;
-  int i, j, process_height;
+  short int* L;
+  short int* ghost;
+  short int* aux_ghost;
+  short int* ghost_to_send;
+  short int* to_print;
+  short int* line_chunks_sizes;
+  int i, j, process_height, j_line, chunk_size_index;
   double start; // time before lcs algorithm
   double end; // time after lcs algorithm
   double start_intern; // time before lcs algorithm
   double end_intern; // time after lcs algorithm
-  double time; // total execution time
-  double comm_time;
+  double time = 0.0; // total execution time
+  double comm_time = 0.0;
   int size = 1;
   int inc = 1;
   int start_id;
@@ -50,30 +52,53 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
   int is_first = 1;
   int max_index;
   char *lcs;
-  int last_m = m;
+  int last_m = m, mem_index, mem_index_src, mem_index_dest;
 
   process_height = 0;
 
   if ((n % p) != 0) {
     process_height = (n / p) + 1;
+    if ((id + 1) <= (n % p)) {
+      max_iter = process_height - 1;
+    } else {
+      max_iter = process_height - 2;
+    }
   } else {
     process_height = (n / p);
+    max_iter = process_height - 1;
   }
 
-  L = (unsigned short int*) malloc(sizeof(unsigned short int) * (m + 1) * process_height );
-  ghost = (unsigned short int*) malloc(sizeof(unsigned short int) * (m + 1) * process_height);
-  to_print = (unsigned short int*) malloc(sizeof(unsigned short int) * (m + 1) * 2);
-  if (id == 0) {
-    aux_ghost = (unsigned short int*) malloc(sizeof(unsigned short int) * (m + 1) * process_height);
-  }
+  L = (short int*) malloc(sizeof(short int) * (m + 1) * process_height );
+  ghost = (short int*) malloc(sizeof(short int) * (m + 1));
+  to_print = (short int*) malloc(sizeof(short int) * (m + 1) * 2);
+  line_chunks_sizes = (short int*) malloc(sizeof(short int) * p);
 
   start = MPI_Wtime();
   for (j = 0; j < ((m + 1) * process_height); j++) {
-    ghost[j] = 0;
-    if(id == 0)
-      aux_ghost[j] = 0;
     L[j] = 0;
   }
+  for (j = 0; j < p; j++) {
+    if ((m % p) != 0) {
+      if ((j + 1) <= (m % p)) {
+        line_chunks_sizes[j] = (m / p) + 1;
+      } else {
+        line_chunks_sizes[j] = (m / p);
+      }
+    } else {
+      line_chunks_sizes[j] = (m / p);
+    }
+   // printf("procc: %d || %d line chunk size: %d\n", id, j, line_chunks_sizes[j]); // debugged
+  }
+  aux_ghost = (short int*) malloc(sizeof(short int) * line_chunks_sizes[0]);
+  ghost_to_send = (short int*) malloc(sizeof(short int) * line_chunks_sizes[0]);
+  for (j = 0; j < (m + 1); j++) {
+    ghost[j] = 0;
+  }
+
+  for (j = 0; j < line_chunks_sizes[0]; j++) {
+    aux_ghost[j] = 0;
+  }
+
   end = MPI_Wtime();
   time = end - start;
   printf("procc: %d || Init Total Time: %f\n", id, time);
@@ -82,75 +107,112 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
   start = MPI_Wtime();
   time = 0;
   comm_time = 0;
-  for (i = 1; i < m + n; i++) {
-    if (i >= m) {
-      x = m;
-      y = 1 + i - m;
-    } else {
-      x = i;
-      y = 1;
-    }
+  
+  for (i = 0; i <= max_iter; i++) {
 
-    if (i == m || i == n) {
-      inc--;
-    }
-
-    if (i == m && i == n) {
-      inc--;
-    }
-
-    if(i > m) {
-      if((id - ((i - m) % p)) < 0) {
-        start_id = (id - ((i - m) % p)) + p;
-      } else {
-        start_id = (id - ((i - m) % p));
+    if (id != 0) {
+      // waits for ghost line from previous procc
+      //printf("procc: %d || waiting...\n", id);fflush;
+      MPI_Recv(aux_ghost, line_chunks_sizes[0], MPI_SHORT, (id - 1), (id - 1), MPI_COMM_WORLD, &status);
+      //memmove(&ghost[1], &aux_ghost[0], line_chunks_sizes[0] * sizeof(unsigned short int));
+      mem_index_src = 0;
+      mem_index_dest = 1;
+      for (mem_index = 0; mem_index < line_chunks_sizes[0]; mem_index++) {
+        ghost[mem_index_dest] = aux_ghost[mem_index_src];
+        mem_index_src++;
+        mem_index_dest++;
       }
+      //printf("procc: %d || first received!!!!\n", id);fflush;
     } else {
-      start_id = id;
-    }
-
-    init_x = x;
-    init_y = y;
-
-    iter = aux_iter;
-    start_intern = MPI_Wtime();
-    for (j = start_id; j < size; j = j + p) {
-      x = init_x - j;
-      y = init_y + j;
-      pos_to_store = ((m + 1) * iter) + i - id - (p * iter);
-      if ((pos_to_store + 1) % (m + 1) == 0)
-        aux_iter++;
-      if (X[x-1] == Y[y-1]) {
-       L[pos_to_store] = ghost[pos_to_store-1] + cost(i);
+      if (i > 0) {
+        // waits for ghost line from p procc
+        //printf("procc: %d || waiting...\n", id);fflush;
+        MPI_Recv(aux_ghost, line_chunks_sizes[0], MPI_SHORT, (p - 1), (p - 1), MPI_COMM_WORLD, &status);
+        //memmove(&ghost[1], &aux_ghost[0], line_chunks_sizes[0] * sizeof(unsigned short int));
+        mem_index_src = 0;
+        mem_index_dest = 1;
+        for (mem_index = 0; mem_index < line_chunks_sizes[0]; mem_index++) {
+          ghost[mem_index_dest] = aux_ghost[mem_index_src];
+          mem_index_src++;
+          mem_index_dest++;
+        }
+        //printf("procc: %d || first received!!!!\n", id);fflush;
       } else {
-        L[pos_to_store] = max(L[pos_to_store-1], ghost[pos_to_store]);
+        //printf("procc: %d || first no need to wait\n", id);fflush;
+        // no need to wait (else to remove)
       }
-      iter++;
     }
-    end_intern = MPI_Wtime();
-    time = time + (end_intern - start_intern);
-    if ((iter - 1) >= max_iter) {
-      max_iter = (iter - 1);
-    }
-    
-    start_intern = MPI_Wtime();
-    MPI_Isend(L, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id + 1) % p), id, MPI_COMM_WORLD, &request);
 
-    if (id == 0) {
-       MPI_Recv(aux_ghost, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id - 1) % p), ((id - 1) % p), MPI_COMM_WORLD, &status);
-       for (j = 0; j < (m + 1); j++)
-        ghost[j] = 0;
-       memcpy(&ghost[(m + 1)], &aux_ghost[0], (m + 1) * (process_height - 1) * sizeof(unsigned short int));
-    } else {
-      MPI_Recv(ghost, (m + 1) * process_height, MPI_UNSIGNED_SHORT, ((id - 1) % p), ((id - 1) % p), MPI_COMM_WORLD, &status);
-    }
-    
+    j_line = 1;
+    chunk_size_index = 0;
+    time = 0;
+    while (j_line <= m) {
 
-    size += inc;
-    end_intern = MPI_Wtime();
-    comm_time = comm_time + (end_intern - start_intern);
-    //MPI_Barrier (MPI_COMM_WORLD);
+      for (j = 0; j < line_chunks_sizes[chunk_size_index]; j++) {
+        //printf("procc: %d || line: %d || column: %d || index on chunk: %d\n", id, i, j_line, j);
+        if (X[j_line - 1] == Y[id + (p * i)]) {
+         L[(i * (m + 1)) + j_line] = ghost[j_line - 1] + cost(i);
+        } else {
+          L[(i * (m + 1)) + j_line] = max(L[(i * (m + 1)) + (j_line-1)], ghost[j_line]);
+        }
+        j_line++;
+      }
+
+      if (id == ((n - 1) % p) && i == max_iter) {
+      } else {
+        // to send
+        //printf("procc: %d || j_line: %d || sent!!!!\n", id, j_line);fflush;
+        //memmove(&ghost_to_send[0], &L[(i * (m + 1)) + (j_line - line_chunks_sizes[chunk_size_index])], line_chunks_sizes[0] * sizeof(unsigned short int));
+        mem_index_src = (i * (m + 1)) + (j_line - line_chunks_sizes[chunk_size_index]);
+        mem_index_dest = 0;
+        for (mem_index = 0; mem_index < line_chunks_sizes[0]; mem_index++) {
+          ghost_to_send[mem_index_dest] = L[mem_index_src];
+          mem_index_src++;
+          mem_index_dest++;
+        }
+        MPI_Isend(ghost_to_send, line_chunks_sizes[0], MPI_SHORT, ((id + 1) % p), id, MPI_COMM_WORLD, &request);
+      }
+
+      if (j_line <= m) {
+        if (id != 0) {
+          //printf("procc: %d || j_line: %d || second waiting...\n", id, j_line);fflush;
+          MPI_Recv(aux_ghost, line_chunks_sizes[0], MPI_SHORT, (id - 1), (id - 1), MPI_COMM_WORLD, &status);
+          //memmove(&ghost[j_line], &aux_ghost[0], line_chunks_sizes[chunk_size_index + 1] * sizeof(unsigned short int));
+          mem_index_src = 0;
+          mem_index_dest = j_line;
+          for (mem_index = 0; mem_index < line_chunks_sizes[chunk_size_index + 1]; mem_index++) {
+            ghost[mem_index_dest] = aux_ghost[mem_index_src];
+            mem_index_src++;
+            mem_index_dest++;
+          }
+          //printf("procc: %d || received!!!!\n", id);fflush;
+        } else {
+          if (i > 0) {
+            // waits for ghost line from p procc
+            //printf("procc: %d || j_line: %d || second waiting...\n", id, j_line);fflush;
+            MPI_Recv(aux_ghost, line_chunks_sizes[0], MPI_SHORT, (p - 1), (p - 1), MPI_COMM_WORLD, &status);
+            //memmove(&ghost[j_line], &aux_ghost[0], line_chunks_sizes[chunk_size_index + 1] * sizeof(unsigned short int));
+            mem_index_src = 0;
+            mem_index_dest = j_line;
+            for (mem_index = 0; mem_index < line_chunks_sizes[chunk_size_index + 1]; mem_index++) {
+              ghost[mem_index_dest] = aux_ghost[mem_index_src];
+              mem_index_src++;
+              mem_index_dest++;
+            }
+            //printf("procc: %d || received!!!!\n", id);fflush;
+          } else {
+            // no need to wait (else to remove)
+            //printf("procc: %d || second no need to wait\n", id);fflush;
+          }
+        }
+      }      
+      
+      chunk_size_index++;
+    }
+    //printf("procc: %d || line: %d || column: %d || time: %d\n", id, i, j_line);
   }
+
+  MPI_Barrier (MPI_COMM_WORLD);
   printf("procc: %d || Intern Computation Time: %f\n", id, time);
   printf("procc: %d || Intern Comm Time: %f\n", id, comm_time);
   end = MPI_Wtime();
@@ -158,7 +220,7 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
   printf("procc: %d || Computation Total Time: %f\n", id, time);
   MPI_Barrier (MPI_COMM_WORLD);
 
-  if (id == 0) {
+  /*if (id == 0) {
     procc_to_print = (n - 1) % p;
     start = MPI_Wtime();
     for (i = n - 1; i >= 0; i--) {
@@ -209,13 +271,22 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
   }
 
   if(id == 0)
-    printf("%s\n", lcs);
+    printf("%s\n", lcs);*/
+
+  for (j = 0; j < (m+1) * process_height; j++) {
+    if( j == (m+1) * process_height - 1)
+    printf("id: %d index: %d val: %d\n", id, j, L[j]);fflush;
+  }
+  /*if(id == (n - 1) % p) {
+    printf("RESULT: %d\n", L[(m+1) * (max_iter + 1)]);fflush;
+  }*/
 
   free(L);
   free(ghost);
-  if (id == 0) {
-    free(aux_ghost);
-  }
+  free(aux_ghost);
+  free(to_print);
+  free(ghost_to_send);
+  free(line_chunks_sizes);
 }
 
 int main(int argc, char *argv[]) {

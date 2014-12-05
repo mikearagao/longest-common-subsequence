@@ -1,5 +1,21 @@
-procc: 1 || Init Total Time: 0.911611
-procc: 3 || Init Total Time: 0.999712
-procc: 2 || Init Total Time: 1.032189
-procc: 0 || Init Total Time: 1.364836
-4 total processes killed (some possibly by mpirun during cleanup)
+procc: 1 || Init Total Time: 0.460542
+procc: 2 || Init Total Time: 0.461764
+procc: 0 || Init Total Time: 0.461923
+procc: 3 || Init Total Time: 0.467097
+procc: 2 || Intern Computation Time: 0.000000
+procc: 1 || Intern Computation Time: 0.000000
+procc: 1 || Intern Comm Time: 0.000000
+procc: 1 || Computation Total Time: 57.179428
+procc: 0 || Intern Computation Time: 0.000000
+procc: 0 || Intern Comm Time: 0.000000
+procc: 0 || Computation Total Time: 57.178070
+procc: 3 || Intern Computation Time: 0.000000
+procc: 3 || Intern Comm Time: 0.000000
+procc: 3 || Computation Total Time: 57.172845
+procc: 2 || Intern Comm Time: 0.000000
+procc: 2 || Computation Total Time: 57.178287
+id: 0 index: 76504499 val: 21136
+id: 2 index: 76504499 val: 21138
+id: 3 index: 76504499 val: 21138
+id: 1 index: 76504499 val: 21137
+Total Time: 57.855626
