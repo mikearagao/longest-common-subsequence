@@ -1,21 +1,21 @@
-procc: 0 || Init Total Time: 0.036165
-procc: 2 || Init Total Time: 0.036245
-procc: 3 || Init Total Time: 0.036198
-procc: 1 || Init Total Time: 0.038231
-procc: 3 || Intern Computation Time: 0.000000
-procc: 0 || Intern Computation Time: 0.000000
-procc: 0 || Intern Comm Time: 0.000000
-procc: 0 || Computation Total Time: 3.160475
-procc: 2 || Intern Computation Time: 0.000000
-procc: 2 || Intern Comm Time: 0.000000
-procc: 2 || Computation Total Time: 3.160350
+procc: 2 || Init Total Time: 0.036509
+procc: 1 || Init Total Time: 0.038754
+procc: 0 || Init Total Time: 0.071349
+procc: 3 || Init Total Time: 0.073713
 procc: 1 || Intern Computation Time: 0.000000
 procc: 1 || Intern Comm Time: 0.000000
-procc: 1 || Computation Total Time: 3.158397
+procc: 1 || Computation Total Time: 10.285459
+procc: 2 || Intern Computation Time: 0.000000
+procc: 0 || Intern Computation Time: 0.000000
+procc: 3 || Intern Computation Time: 0.000000
 procc: 3 || Intern Comm Time: 0.000000
-procc: 3 || Computation Total Time: 3.160419
-id: 0 index: 6000749 val: 2833
-id: 2 index: 6000749 val: 2834
-id: 3 index: 6000749 val: 2834
+procc: 3 || Computation Total Time: 10.239298
+procc: 0 || Intern Comm Time: 0.000000
+procc: 0 || Computation Total Time: 10.253112
+procc: 2 || Intern Comm Time: 0.000000
+procc: 2 || Computation Total Time: 10.297878
 id: 1 index: 6000749 val: 2833
-Total Time: 3.213841
+id: 0 index: 6000749 val: 2833
+id: 3 index: 6000749 val: 2834
+id: 2 index: 6000749 val: 2834
+Total Time: 10.351594

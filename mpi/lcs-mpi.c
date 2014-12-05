@@ -27,12 +27,12 @@ short cost(int x) {
 
 /* Returns length of LCS for X[0..m-1], Y[0..n-1] */
 void lcs( char *X, char *Y, int m, int n, int id, int p) {
-  short int* L;
-  short int* ghost;
-  short int* aux_ghost;
-  short int* ghost_to_send;
-  short int* to_print;
-  short int* line_chunks_sizes;
+  unsigned short int* L;
+  unsigned short int* ghost;
+  unsigned short int* aux_ghost;
+  unsigned short int* ghost_to_send;
+  unsigned short int* to_print;
+  unsigned short int* line_chunks_sizes;
   int i, j, process_height, j_line, chunk_size_index;
   double start; // time before lcs algorithm
   double end; // time after lcs algorithm
@@ -68,10 +68,10 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
     max_iter = process_height - 1;
   }
 
-  L = (short int*) malloc(sizeof(short int) * (m + 1) * process_height );
-  ghost = (short int*) malloc(sizeof(short int) * (m + 1));
-  to_print = (short int*) malloc(sizeof(short int) * (m + 1) * 2);
-  line_chunks_sizes = (short int*) malloc(sizeof(short int) * p);
+  L = (unsigned short int*) malloc(sizeof(unsigned short int) * (m + 1) * process_height );
+  ghost = (unsigned short int*) malloc(sizeof(unsigned short int) * (m + 1));
+  to_print = (unsigned short int*) malloc(sizeof(unsigned short int) * (m + 1) * 2);
+  line_chunks_sizes = (unsigned short int*) malloc(sizeof(unsigned short int) * p);
 
   start = MPI_Wtime();
   for (j = 0; j < ((m + 1) * process_height); j++) {
@@ -89,8 +89,8 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
     }
    // printf("procc: %d || %d line chunk size: %d\n", id, j, line_chunks_sizes[j]); // debugged
   }
-  aux_ghost = (short int*) malloc(sizeof(short int) * line_chunks_sizes[0]);
-  ghost_to_send = (short int*) malloc(sizeof(short int) * line_chunks_sizes[0]);
+  aux_ghost = (unsigned short int*) malloc(sizeof(unsigned short int) * line_chunks_sizes[0]);
+  ghost_to_send = (unsigned short int*) malloc(sizeof(unsigned short int) * line_chunks_sizes[0]);
   for (j = 0; j < (m + 1); j++) {
     ghost[j] = 0;
   }
@@ -113,7 +113,7 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
     if (id != 0) {
       // waits for ghost line from previous procc
       //printf("procc: %d || waiting...\n", id);fflush;
-      MPI_Recv(aux_ghost, line_chunks_sizes[0], MPI_SHORT, (id - 1), (id - 1), MPI_COMM_WORLD, &status);
+      MPI_Recv(aux_ghost, line_chunks_sizes[0], MPI_UNSIGNED_SHORT, (id - 1), (id - 1), MPI_COMM_WORLD, &status);
       //memmove(&ghost[1], &aux_ghost[0], line_chunks_sizes[0] * sizeof(unsigned short int));
       mem_index_src = 0;
       mem_index_dest = 1;
@@ -127,7 +127,7 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
       if (i > 0) {
         // waits for ghost line from p procc
         //printf("procc: %d || waiting...\n", id);fflush;
-        MPI_Recv(aux_ghost, line_chunks_sizes[0], MPI_SHORT, (p - 1), (p - 1), MPI_COMM_WORLD, &status);
+        MPI_Recv(aux_ghost, line_chunks_sizes[0], MPI_UNSIGNED_SHORT, (p - 1), (p - 1), MPI_COMM_WORLD, &status);
         //memmove(&ghost[1], &aux_ghost[0], line_chunks_sizes[0] * sizeof(unsigned short int));
         mem_index_src = 0;
         mem_index_dest = 1;
@@ -170,13 +170,13 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
           mem_index_src++;
           mem_index_dest++;
         }
-        MPI_Isend(ghost_to_send, line_chunks_sizes[0], MPI_SHORT, ((id + 1) % p), id, MPI_COMM_WORLD, &request);
+        MPI_Isend(ghost_to_send, line_chunks_sizes[0], MPI_UNSIGNED_SHORT, ((id + 1) % p), id, MPI_COMM_WORLD, &request);
       }
 
       if (j_line <= m) {
         if (id != 0) {
           //printf("procc: %d || j_line: %d || second waiting...\n", id, j_line);fflush;
-          MPI_Recv(aux_ghost, line_chunks_sizes[0], MPI_SHORT, (id - 1), (id - 1), MPI_COMM_WORLD, &status);
+          MPI_Recv(aux_ghost, line_chunks_sizes[0], MPI_UNSIGNED_SHORT, (id - 1), (id - 1), MPI_COMM_WORLD, &status);
           //memmove(&ghost[j_line], &aux_ghost[0], line_chunks_sizes[chunk_size_index + 1] * sizeof(unsigned short int));
           mem_index_src = 0;
           mem_index_dest = j_line;
@@ -190,7 +190,7 @@ void lcs( char *X, char *Y, int m, int n, int id, int p) {
           if (i > 0) {
             // waits for ghost line from p procc
             //printf("procc: %d || j_line: %d || second waiting...\n", id, j_line);fflush;
-            MPI_Recv(aux_ghost, line_chunks_sizes[0], MPI_SHORT, (p - 1), (p - 1), MPI_COMM_WORLD, &status);
+            MPI_Recv(aux_ghost, line_chunks_sizes[0], MPI_UNSIGNED_SHORT, (p - 1), (p - 1), MPI_COMM_WORLD, &status);
             //memmove(&ghost[j_line], &aux_ghost[0], line_chunks_sizes[chunk_size_index + 1] * sizeof(unsigned short int));
             mem_index_src = 0;
             mem_index_dest = j_line;
