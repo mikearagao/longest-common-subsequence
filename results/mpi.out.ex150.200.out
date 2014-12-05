@@ -1,3 +1,20 @@
+procc: 0 || Init Total Time: 0.000098
+procc: 1 || Init Total Time: 0.000082
+procc: 3 || Init Total Time: 0.000074
+procc: 2 || Init Total Time: 0.000072
+procc: 3 || Intern Computation Time: 0.003791
+procc: 3 || Intern Comm Time: 0.152128
+procc: 3 || Computation Total Time: 0.155985
+procc: 1 || Intern Computation Time: 0.003839
+procc: 2 || Intern Computation Time: 0.003859
+procc: 2 || Intern Comm Time: 0.143183
+procc: 2 || Computation Total Time: 0.147106
+procc: 0 || Intern Computation Time: 0.003765
+procc: 0 || Intern Comm Time: 0.152173
+procc: 0 || Computation Total Time: 0.156006
+procc: 1 || Intern Comm Time: 0.152038
+procc: 1 || Computation Total Time: 0.156067
 110
+procc: 0 || Print Total Time: 0.000109
 CGTCTGGGAAACTTTGGGCGCAGTCCCGCTAGGAACTTACCCAGACTCGTCTTAGGAATAGGTGAAAAATTTGGTTTGCCCAAAATCAGACGCCCGCGGACTTAAACTAA
-Total Time: 0.027727
+Total Time: 0.156364
