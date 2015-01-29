@@ -14,7 +14,7 @@ Open a terminal:
 
     git clone https://github.com/mikearagao/longest-common-subsequence
     
-## Compilation
+## Compiling
 
 Open a terminal:
 
@@ -23,18 +23,18 @@ Open a terminal:
 
 ## Running
 
-## Input Structure
+### Input Structure
 
 Follow the structure of the `.in` files on the `/instances` folder.
 
-### Serial Version Demo
+### Serial Demo
 
 Open a terminal:
 
     cd scripts
     sh run_serial.sh
 
-### OpenMP Version Demo
+### OpenMP Demo
 
 Open a terminal:
 
