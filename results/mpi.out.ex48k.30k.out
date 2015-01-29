@@ -1,5 +1,0 @@
-procc: 1 || Init Total Time: 2.166302
-procc: 3 || Init Total Time: 2.227798
-procc: 0 || Init Total Time: 2.268866
-procc: 2 || Init Total Time: 2.427498
-4 total processes killed (some possibly by mpirun during cleanup)

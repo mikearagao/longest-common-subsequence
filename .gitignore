@@ -1,7 +1,4 @@
 serial/serial
-serial/old
 omp/omp
-mpi/mpi
-results/omp*
 results/serial*
-results/old*
+results/omp*

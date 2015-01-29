@@ -155,7 +155,7 @@ int main(int argc, char *argv[]) {
   end = omp_get_wtime();
 
   time = end - start;
-  //printf("Total Time: %f\n", time);
+  printf("Total Time: %f\n", time);
 
   free(secondString);
   free(firstString);

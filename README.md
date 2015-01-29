@@ -1,6 +1,12 @@
 # longest-common-subsequence
 
-Main project for the Parallel and Distributed Computing course
+Yet another serial and parallel implementation to solve the problem of the longest common subsequence
+
+## Testing Environment
+
+* Ubuntu 14.04
+* GCC
+* Multi-core processor
 
 ## Downloading
 
@@ -17,26 +23,20 @@ Open a terminal:
 
 ## Running
 
-### Serial Version
+## Input Structure
+
+Follow the structure of the `.in` files on the `/instances` folder.
+
+### Serial Version Demo
 
 Open a terminal:
 
     cd scripts
     sh run_serial.sh
 
-## Contributions
-
-Please follow these instructions for secure commit flows.
+### OpenMP Version Demo
 
 Open a terminal:
 
-    sh push.sh "{commit title}"
-
-Then you will be asked for your username and password.
-In case the authentication fails you should not execute the push.sh again. Please open a terminal and run:
-
-    git push -u origin master
-
-You will be asked again for your credentials. In case it fails again you should only run the last command.
-
-Everything should be now pushed to the master branch. Thank you!
+    cd scripts
+    sh run_omp.sh
