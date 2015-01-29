@@ -1,6 +1,6 @@
 # longest-common-subsequence
 
-Yet another serial and parallel implementation to solve the problem of the longest common subsequence
+Yet another serial and parallel implementation to solve the problem of the longest common subsequence.
 
 ## Testing Environment
 
